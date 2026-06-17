@@ -1,0 +1,40 @@
+DROP TABLE MITARBEITER;
+CREATE TABLE MITARBEITER (
+    ID INT PRIMARY KEY NOT NULL,
+    NAME VARCHAR(100),
+    ABTEILUNG VARCHAR(50),
+    GEHALT DECIMAL(10,2),
+    STANDORT VARCHAR(50),
+    manager VARCHAR(10)
+);
+
+INSERT INTO MITARBEITER VALUES
+(1, 'Max Mustermann', 'IT', 75000.00, 'Berlin','DB2INST1'),
+(2, 'Anna Schmidt', 'HR', 85000.00, 'München','PEOPLE'),
+(3, 'Peter Müller', 'IT', 80000.00, 'Hamburg','DB2INST1'),
+(4, 'Lisa Bauer', 'Finanzen', 90000.00, 'Frankfurt','PEOPLE');
+
+
+
+CREATE OR REPLACE MASK GEHALT_MASK ON MITARBEITER
+  FOR COLUMN GEHALT RETURN
+    CASE WHEN (1 = 1) THEN 99.00
+         ELSE NULL
+    END
+  ENABLE;
+
+ALTER TABLE mitarbeiter DEACTIVATE COLUMN ACCESS CONTROL;
+ALTER TABLE mitarbeiter ACTIVATE COLUMN ACCESS CONTROL;
+
+SELECT * FROM mitarbeiter;
+
+create OR replace permission mitarbeiter_data_access on db2inst1."MITARBEITER" 
+for rows where (manager = session_user ) enforced for ALL ACCESS
+ENABLE;
+
+ALTER TABLE mitarbeiter ACTIVATE ROW ACCESS CONTROL;
+
+SELECT * FROM mitarbeiter;
+
+
+SELECT SESSION_USER FROM SYSIBM.sysdummy1;
